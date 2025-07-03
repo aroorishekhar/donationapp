@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🙏 Public Help Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
+<style>
+    body {
+        background: radial-gradient(circle, #1a1a1a 0%, #000000 100%);
+        color: #fff;
+        font-family: 'Segoe UI', sans-serif;
+        text-align: center;
+        padding: 1rem;
+        overflow-x: hidden;
+    }
+    body::after {
+        content: '';
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, #ff9900 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        box-shadow: 0 0 20px 10px #ff990044, 0 0 60px 30px #ff990022;
+        animation: flicker 2s infinite;
+        z-index: 0;
+    }
+    @keyframes flicker {
+        0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); }
+        50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+    }
+    h1 {
+        color: #00ffcc;
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        text-shadow: 0 0 10px #00ffcc;
+        z-index: 1;
+        position: relative;
+    }
+    .slokam {
+        color: #ffd700;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+        text-shadow: 0 0 10px #ffd700;
+        z-index: 1;
+        position: relative;
+    }
+    .container {
+        background: rgba(28,28,28,0.95);
+        margin: 1rem auto;
+        padding: 1rem;
+        max-width: 500px;
+        border-radius: 15px;
+        box-shadow: 0 0 25px #000;
+        position: relative;
+        z-index: 1;
+    }
+    .container:hover {
+        transform: scale(1.03);
+        box-shadow: 0 0 30px #00ffcc44;
+    }
+    canvas {
+        margin: 1rem 0;
+        border: 3px solid #00ffcc;
+        border-radius: 10px;
+        padding: 0.5rem;
+        background: #000;
+    }
+    button, a.post-btn {
+        background: #00ffcc;
+        color: #000;
+        padding: 0.8rem 1.5rem;
+        border: none;
+        border-radius: 50px;
+        font-size: 1rem;
+        cursor: pointer;
+        display: inline-block;
+        margin: 0.5rem;
+        box-shadow: 0 0 10px #00ffcc;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    button:hover, a.post-btn:hover {
+        background: #00e6b8;
+        transform: scale(1.05);
+    }
+    input, textarea {
+        width: 90%;
+        padding: 0.7rem;
+        margin: 0.5rem 0;
+        border-radius: 8px;
+        border: 2px solid #00ffcc44;
+        background: #2a2a2a;
+        color: #fff;
+        font-size: 1rem;
+        transition: border 0.3s;
+    }
+    input:focus, textarea:focus {
+        border-color: #00ffcc;
+        outline: none;
+    }
+    .blessing {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        color: #00ffcc;
+        text-shadow: 0 0 5px #00ffcc;
+    }
+</style>
+</head>
+<body><h1>🙏 Public Help Platform</h1>
+<p class="slokam">॥ गोविन्दाय नमः ॥ सर्वे भवन्तु सुखिनः सर्वे सन्तु निरामयाः ॥</p>
+<p><a class="post-btn" href="#upload">➕ Post Your Request</a></p><div class="container">
+    <h2>Poojitha</h2>
+    <p>Purpose: Medical Emergency</p>
+    <canvas id="qr-poojitha"></canvas>
+    <br>
+    <button onclick="payNow('poojitha@ybl', 'Poojitha')">Donate Now</button>
+</div><div class="container">
+    <h2>Ramesh</h2>
+    <p>Purpose: Family Support</p>
+    <canvas id="qr-ramesh"></canvas>
+    <br>
+    <button onclick="payNow('ramesh@upi', 'Ramesh')">Donate Now</button>
+</div><div id="upload" class="container">
+    <h2>Post Your Request</h2>
+    <input type="text" id="name" placeholder="Your Name">
+    <textarea id="purpose" rows="3" placeholder="Your Purpose"></textarea>
+    <input type="text" id="upi" placeholder="Your UPI ID" oninput="generatePreviewQR()"><canvas id="qr-preview" style="display:none;"></canvas>
+<br>
+<button onclick="payPreview()" style="display:none;" id="payBtn">Donate Now</button>
+<p class="blessing">🙏 God Bless You! May everything good happen in your life. Help everyone with God's blessings. 🙏</p>
+
+</div><div class="container">
+    <h2>Complete Your Post - Pay ₹50</h2>
+    <button onclick="collectPostFee()">Pay ₹50 to Activate Post</button>
+</div><script>
+// QR for Existing Profiles
+new QRious({ element: document.getElementById('qr-poojitha'), value: "upi://pay?pa=poojitha@ybl&pn=Poojitha&cu=INR" });
+new QRious({ element: document.getElementById('qr-ramesh'), value: "upi://pay?pa=ramesh@upi&pn=Ramesh&cu=INR" });
+
+function generatePreviewQR() {
+    const upi = document.getElementById('upi').value.trim();
+    const name = document.getElementById('name').value.trim();
+    const qrCanvas = document.getElementById('qr-preview');
+    const payBtn = document.getElementById('payBtn');
+
+    if(upi && name) {
+        qrCanvas.style.display = 'block';
+        payBtn.style.display = 'inline-block';
+
+        new QRious({
+            element: qrCanvas,
+            value: `upi://pay?pa=${upi}&pn=${encodeURIComponent(name)}&cu=INR`
+        });
+    } else {
+        qrCanvas.style.display = 'none';
+        payBtn.style.display = 'none';
+    }
+}
+
+function payNow(upiId, name){
+    const amount = 1; 
+    const url = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(name)}&cu=INR&am=${amount}`;
+    window.location.href = url;
+}
+
+function payPreview(){
+    const name = document.getElementById('name').value.trim();
+    const upi = document.getElementById('upi').value.trim();
+    if(!upi || !name) return;
+    payNow(upi, name);
+}
+
+function collectPostFee(){
+    const feeUrl = "upi://pay?pa=aroorishekhar@ybl&pn=PS%20Works&cu=INR&am=50";
+    window.location.href = feeUrl;
+}
+</script></body>
+</html>
